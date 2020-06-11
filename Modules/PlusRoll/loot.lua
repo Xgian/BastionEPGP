@@ -345,7 +345,7 @@ function bepgp_plusroll_loot:processLootCallback(player,itemLink,source,itemColo
       class, hex = cached.class, cached.hex
     end
   end
-  if not (class) then return end
+  --if not (class) then return end
   self._lastPlayerItem, self._lastPlayerItemTime, self._lastPlayerItemSource = player_item, now, source
   local player_color = C:Colorize(hex,player)
   local epoch, timestamp = bepgp:getServerTime()

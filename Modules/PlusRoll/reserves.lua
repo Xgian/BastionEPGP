@@ -169,6 +169,15 @@ function bepgp_plusroll_reserves:OnEnable()
   self._container._togglelock = togglelock
   container:AddChild(togglelock)
 
+  --local import = GUI:Create("Button")
+  --import:SetWidth(100)
+  --import:SetText(L["Import"])
+  --import:SetCallback("OnClick",function()
+
+  --end)
+  --self._container._import = import
+  --container:AddChild(import)
+
   local export = GUI:Create("Button")
   export:SetWidth(100)
   export:SetText(L["Export"])
@@ -240,8 +249,19 @@ local lootRes = {
 function bepgp_plusroll_reserves:captureRes(event, text, sender)
   if bepgp.db.char.mode ~= "plusroll" then return end
   if not (bepgp:lootMaster()) then return end -- DEBUG
-  sender = Ambiguate(sender,"short")
-  if not bepgp:inRaid(sender) then return end -- DEBUG
+  --sender = Ambiguate(sender,"short")
+  --if not bepgp:inRaid(sender) then return end -- DEBUG
+  local upText = string.upper(text)
+  if (string.find(upText, "RES ") == nil) then return end
+  local resLine = string.find(upText, " RES ")
+  local zone = ""
+  if (resLine == nil) then
+    sender = Ambiguate(sender, "short")
+    zone = string.sub(upText, 5, string.find(text, " ", 5))
+  else
+    sender = Ambiguate(string.sub(text, 0, resLine-1), "short")
+    zone = string.sub(upText, resLine + 5, string.find(text, " ", resLine + 6))
+  end
   if not (string.find(text, "|Hitem:", 1, true)) then return end
   local linkstriptext, count = string.gsub(text,"|c%x+|H[eimt:%d]+|h%[[%w%s',%-]+%]|h|r"," ; ")
   if count > 1 then return end
@@ -258,14 +278,15 @@ function bepgp_plusroll_reserves:captureRes(event, text, sender)
       itemColor, itemString, itemName, itemID = bepgp:getItemData(itemLink)
     end
     if (itemName) then
-      self:AddReserve(sender,itemID)
+      self:AddReserve(sender,zone,itemID)
     end
   end
 end
 
 --/run BastionEPGP:GetModule("BastionEPGP_plusroll_reserves"):AddReserve("Jumpshot",19915)
-function bepgp_plusroll_reserves:AddReserve(player,item)
-  local found = players[player]
+function bepgp_plusroll_reserves:AddReserve(player,zone,item)
+  local playerZone = player .. "|" .. zone
+  local found = players[playerZone]
   local locked = bepgp.db.char.reserves.locked
   if found then -- already has a reserve, if permitted update
     if found[2] == false then
@@ -290,7 +311,7 @@ function bepgp_plusroll_reserves:AddReserve(player,item)
     if locked then -- overall list is locked
       SendChatMessage(string.format("%s:%s",addonName,L["Reserves are locked."]),"WHISPER",nil,player)
     else
-      players[player] = {item, false}
+      players[playerZone] = {item, false}
       items[item] = items[item] or {}
       items[item][player] = true
       SendChatMessage(string.format("%s:%s",addonName,L["Reserve added."]),"WHISPER",nil,player)
@@ -300,7 +321,15 @@ function bepgp_plusroll_reserves:AddReserve(player,item)
 end
 
 function bepgp_plusroll_reserves:IsReservedExact(player,item)
-  return players[player] and players[player][1] and (players[player][1] == item)
+  for __player,entry in pairs(players) do
+    local _player = string.sub(__player, 0, string.find(__player, "|")-1)
+    if (_player == player) then
+      if (entry[1] == item) then
+        return true;
+      end
+    end
+  end
+  return false
 end
 
 function bepgp_plusroll_reserves:IsReserved(item)
@@ -312,9 +341,18 @@ function bepgp_plusroll_reserves:IsReserved(item)
   end
 end
 
-function bepgp_plusroll_reserves:RemoveReserve(player,item)
-  if players[player] then
-    players[player]=nil
+function bepgp_plusroll_reserves:RemoveReserve(_player,item)
+  local pipe = string.find(_player,"|")
+  local player = _player
+  if (pipe ~= nil) then
+    player = string.sub(_player, 0, string.find(_player,"|")-1)
+  end
+  for __player,entry in pairs(players) do
+    local playershort = string.sub(__player, 0, string.find(__player, "|")-1)
+    if (playershort == player and entry[1] == item) then
+      players[__player]=nil
+      break
+    end
   end
   if items[item] and items[item][player] then
     items[item][player] = nil
@@ -335,7 +373,8 @@ function bepgp_plusroll_reserves:Toggle(show)
 end
 
 local function populate(data,link,player,lock,id)
-  local cached = bepgp:groupCache(player)
+  local name = string.sub(player, 0, string.find(player,"|")-1)
+  local cached = bepgp:groupCache(name)
   local color = cached and cached.color or colorUnknown
   local c_lock = lock and colorLocked or colorUnlocked
   table.insert(data,{["cols"]={

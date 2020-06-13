@@ -3,6 +3,7 @@ local moduleName = addonName.."_io"
 local bepgp_io = bepgp:NewModule(moduleName)
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local Dump = LibStub("LibTextDump-1.0")
+local Import = LibStub("LibImport")
 local Parse = LibStub("LibParse")
 
 local temp_data = {}
@@ -13,6 +14,7 @@ function bepgp_io:OnEnable()
   self._iologs = Dump:New(L["Export Logs"],450,320)
   self._iobrowser = Dump:New(L["Export Favorites"],520,290)
   self._ioreserves = Dump:New(L["Export Reserves"],450,300)
+  self._ioresimport = Import:New("Import Reserves",450,400,doReservesImport)
   local bastionexport,_,_,_,reason = GetAddOnInfo("BastionEPGP_Export")
   if not (reason == "ADDON_MISSING" or reason == "ADDON_DISABLED") then
     local loaded, finished = IsAddOnLoaded("BastionEPGP_Export")
@@ -185,6 +187,38 @@ end
 
 function bepgp_io:StandingsImport()
   if not IsGuildLeader() then return end
+end
+
+function bepgp_io:ImportReserves()
+  self._ioresimport:Clear()
+  self._ioresimport:Display()
+end
+
+function doReservesImport(data, onlyThoseInRaid)
+  local reserves = bepgp:GetModule(addonName.."_plusroll_reserves")
+  local keys, results = Parse:CSVDecode(data)
+  for result, entry in ipairs(results) do
+    local name = entry["name"]
+    if (name ~= nil) then
+      local include = true
+      if (onlyThoseInRaid) then
+        local rid = UnitInRaid(name)
+        if (not rid or rid < 0) then
+          include = false
+        end
+      end
+      if (include) then
+        local mc = entry["mc"]
+        local ony = entry["ony"]
+        if (mc ~= nil and type(mc) == "number") then
+          reserves:AddReserve(name, "MC", mc, false)
+        end
+        if (ony ~= nil and type(ony) == "number") then
+          reserves:AddReserve(name, "ONY", ony, false)
+        end
+      end
+    end
+  end
 end
 
 --[[

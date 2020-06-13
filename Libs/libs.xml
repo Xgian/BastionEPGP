@@ -34,4 +34,5 @@
 <Include file="LibDeformat-3.0\lib.xml"/>
 <Include file="LibGratuity-3.0\lib.xml"/>
 <Include file="LibTouristClassic-1.0\lib.xml"/>
+<Include file="LibImport\lib.xml"/>
 </Ui>

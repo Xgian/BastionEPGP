@@ -1,0 +1,12 @@
+## Interface: 80100
+## Title: Lib: LibImport
+## Notes: Provides import frame for paste target and callback.
+## Author: Xgiandubh
+## Version: 1.0.0.1
+## LoadOnDemand: 1
+## X-Date: 2020-06-11T9:20:05Z
+## X-Category: Libraries
+## X-License: All Rights Reserved
+
+LibStub\LibStub.lua
+lib.xml

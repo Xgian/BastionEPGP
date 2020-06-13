@@ -169,14 +169,19 @@ function bepgp_plusroll_reserves:OnEnable()
   self._container._togglelock = togglelock
   container:AddChild(togglelock)
 
-  --local import = GUI:Create("Button")
-  --import:SetWidth(100)
-  --import:SetText(L["Import"])
-  --import:SetCallback("OnClick",function()
+  local import = GUI:Create("Button")
+  import:SetWidth(100)
+  import:SetText(L["Import"])
+  import:SetCallback("OnClick",function()
 
-  --end)
-  --self._container._import = import
-  --container:AddChild(import)
+    local iof = bepgp:GetModule(addonName.."_io")
+    if iof then
+      iof:ImportReserves(data)
+    end
+
+  end)
+  self._container._import = import
+  container:AddChild(import)
 
   local export = GUI:Create("Button")
   export:SetWidth(100)
@@ -284,7 +289,10 @@ function bepgp_plusroll_reserves:captureRes(event, text, sender)
 end
 
 --/run BastionEPGP:GetModule("BastionEPGP_plusroll_reserves"):AddReserve("Jumpshot",19915)
-function bepgp_plusroll_reserves:AddReserve(player,zone,item)
+function bepgp_plusroll_reserves:AddReserve(player,zone,item,doWhisper)
+  if (doWhisper == nil) then
+    doWhisper = true
+  end 
   local playerZone = player .. "|" .. zone
   local found = players[playerZone]
   local locked = bepgp.db.char.reserves.locked
@@ -303,18 +311,26 @@ function bepgp_plusroll_reserves:AddReserve(player,zone,item)
       found[1]=item -- update the item
       items[item] = items[item] or {}
       items[item][player] = true
-      SendChatMessage(string.format("%s:%s",addonName,L["Reserve updated."]),"WHISPER",nil,player)
+      if (doWhisper) then
+        SendChatMessage(string.format("%s:%s",addonName,L["Reserve updated."]),"WHISPER",nil,player)
+      end
     else -- item is locked
-      SendChatMessage(string.format("%s:%s",addonName,L["Reserves are locked."]),"WHISPER",nil,player)
+      if (doWhisper) then
+        SendChatMessage(string.format("%s:%s",addonName,L["Reserves are locked."]),"WHISPER",nil,player)
+      end
     end
   else
     if locked then -- overall list is locked
-      SendChatMessage(string.format("%s:%s",addonName,L["Reserves are locked."]),"WHISPER",nil,player)
+      if (doWhisper) then
+        SendChatMessage(string.format("%s:%s",addonName,L["Reserves are locked."]),"WHISPER",nil,player)
+      end
     else
       players[playerZone] = {item, false}
       items[item] = items[item] or {}
       items[item][player] = true
-      SendChatMessage(string.format("%s:%s",addonName,L["Reserve added."]),"WHISPER",nil,player)
+      if (doWhisper) then
+        SendChatMessage(string.format("%s:%s",addonName,L["Reserve added."]),"WHISPER",nil,player)
+      end
     end
   end
   self:Toggle(true)
@@ -387,6 +403,7 @@ end
 
 function bepgp_plusroll_reserves:Refresh()
   table.wipe(data)
+  if (not players) then return end
   for player,entry in pairs(players) do
     local id, lock = entry[1], (not not entry[2])
     local _,link = GetItemInfo(id)

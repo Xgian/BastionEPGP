@@ -37,6 +37,7 @@ bepgp.VARS = {
 bepgp._playerName = GetUnitName("player")
 
 local raidStatus,lastRaidStatus
+local reserves
 local lastUpdate = 0
 local running_check
 local partyUnit,raidUnit = {},{}
@@ -704,7 +705,7 @@ function bepgp.OnLDBClick(obj,button)
   local bids = bepgp:GetModule(addonName.."_bids")
   local standings = bepgp:GetModule(addonName.."_standings")
   -- plusroll
-  local reserves = bepgp:GetModule(addonName.."_plusroll_reserves")
+  reserves = reserves or bepgp:GetModule(addonName.."_plusroll_reserves")
   local rollbids = bepgp:GetModule(addonName.."_plusroll_bids")
   local rollloot = bepgp:GetModule(addonName.."_plusroll_loot")
   local rolllogs = bepgp:GetModule(addonName.."_plusroll_logs")
@@ -1136,7 +1137,7 @@ function bepgp:templateCache(id)
               local item = data[loot_indices.item]
               local item_id = data[loot_indices.item_id]
               local from_log = data[loot_indices.log]
-              local reserves = bepgp:GetModule(addonName.."_plusroll_reserves")
+              reserves = reserves or bepgp:GetModule(addonName.."_plusroll_reserves")
               local plusroll_logs = bepgp:GetModule(addonName.."_plusroll_logs")
               local plusroll_loot = bepgp:GetModule(addonName.."_plusroll_loot")
               if from_log then -- update
@@ -1625,7 +1626,7 @@ function bepgp:AddTipInfo(tooltip,...)
     local owner = tooltip:GetOwner()
     local item = Item:CreateFromItemLink(link)
     local itemid = item:GetItemID()
-    if price then
+    if price and not mode_plusroll then
       local off_price = math.floor(price*self.db.profile.discount)
       local ep,gp = (self:get_ep(self._playerName) or 0), (self:get_gp(self._playerName) or bepgp.VARS.basegp)
       local pr,new_pr,new_pr_off = ep/gp, ep/(gp+price), ep/(gp+off_price)
@@ -1643,8 +1644,23 @@ function bepgp:AddTipInfo(tooltip,...)
       end
     end
     if roll_admin and mode_plusroll then
+      reserves = reserves or bepgp:GetModule(addonName.."_plusroll_reserves")
       if owner and owner._bepgprollclicks then
         tooltip:AddDoubleLine(C:Yellow(L["Alt Click"]), C:Orange(L["Call for Rolls"]))
+      end
+      local num_res, who = reserves:IsReserved(itemid)
+      if (num_res and num_res > 0) then
+        local names = ""
+        for name,lock in pairs(who) do
+          if (names ~= "") then
+            names = names .. ", " .. name
+          else
+            names = name
+          end
+        end
+        if (names ~= "") then
+          tooltip:AddDoubleLine(C:Yellow("Reserves:"), C:Orange(names))
+        end
       end
     end
     local favorite = self.db.char.favorites[itemid]

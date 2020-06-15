@@ -208,13 +208,13 @@ function doReservesImport(data, onlyThoseInRaid)
         end
       end
       if (include) then
-        local mc = entry["mc"]
-        local ony = entry["ony"]
-        if (mc ~= nil and type(mc) == "number") then
-          reserves:AddReserve(name, "MC", mc, false)
-        end
-        if (ony ~= nil and type(ony) == "number") then
-          reserves:AddReserve(name, "ONY", ony, false)
+        for index, key in ipairs(keys) do
+          if (not string.match(key, "name")) then
+            local item = entry[key]
+            if (item ~= nil and type(item) == "number") then
+              reserves:AddReserve(name, string.upper(key), item, false)
+            end
+          end
         end
       end
     end

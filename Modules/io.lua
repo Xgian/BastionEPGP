@@ -55,6 +55,10 @@ function bepgp_io:Standings()
   self:export("Standings", temp_data, keys, ";")
 end
 
+function bepgp_io:StandingsImport()
+  if not IsGuildLeader() then return end
+end
+
 function bepgp_io:Loot(loot_indices)
   local keys
   self._ioloot:Clear()
@@ -185,8 +189,6 @@ function bepgp_io:export(context,data,keys,sep)
   self._fileexport[context].CSV = Parse:CSVEncode(keys, data, sep)
 end
 
-function bepgp_io:StandingsImport()
-  if not IsGuildLeader() then return end
 end
 
 function bepgp_io:ImportReserves()
@@ -219,8 +221,6 @@ function doReservesImport(data, onlyThoseInRaid)
       end
     end
   end
-end
-
 --[[
 function sepgp_standings:Import()
   if not IsGuildLeader() then return end

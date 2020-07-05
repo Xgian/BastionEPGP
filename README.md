@@ -1,7 +1,12 @@
-# Modifed BastionEPGP for <Handle It> guild on Mankrik (Classic)
+# Modifed BastionEPGP for Handle It guild on Mankrik (Classic)
 This version was made to allow easier use of RollPlus features. We added the ability to import a CSV of reserves directly into
 BastionEPGP and including players that are not currently in the raid. We originally used a Google Sheets document to generate
 the CSV. A sample can be found [here](https://docs.google.com/spreadsheets/d/1ptM-RBIjtXawoc7oQZxSyBd5JXfPxmU1XXVA7-Dxoi0/edit?usp=sharing).
+
+A couple of notes on using this version:
+* The reserves import feature can only be accessed when you are the masterlooter in a raid.
+* You can paste the csv in with different content as you see fit, as long as the first line (column headers) indicate the zone(s) and the format is something like:
+character,zone_name,zone,secondaryzone_name,secondaryzone
 
 # BastionEPGP
 In-game EPGP guild helper, supports standby, main/alt shared pools, minEP, offpecGP. Fixed price list with progress multiplier.

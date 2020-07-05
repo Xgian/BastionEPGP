@@ -113,6 +113,7 @@ local defaults = {
     },
     guildcache = {},
     alts = {},
+    quality_threshold = LE_ITEM_QUALITY_RARE
   },
   char = {
     raidonly = false,
@@ -599,6 +600,15 @@ function bepgp:options()
         bepgp.db.char.wincountmanual = not bepgp.db.char.wincountmanual
       end,
       hidden = function() return bepgp.db.char.mode ~= "plusroll" end,
+    }
+    self._options.args["prompt_threshold"] = {
+      type = "select",
+      name = "Quality Threshold",
+      desc = "The loot quality threshold required to show distribution purpose prompt.",
+      order = 146,
+      get = function() return bepgp.db.profile.prompt_threshold end,
+      set = function(info, val) bepgp.db.profile.prompt_threshold = val end,
+      values = { LE_ITEM_QUALITY_EPIC = "Epic", LE_ITEM_QUALITY_RARE = "Rare", LE_ITEM_QUALITY_UNCOMMON="Uncommon" },
     }
     self._options.args["wincountclear"] = {
       type = "execute",

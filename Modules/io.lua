@@ -189,8 +189,6 @@ function bepgp_io:export(context,data,keys,sep)
   self._fileexport[context].CSV = Parse:CSVEncode(keys, data, sep)
 end
 
-end
-
 function bepgp_io:ImportReserves()
   self._ioresimport:Clear()
   self._ioresimport:Display()
@@ -221,7 +219,9 @@ function doReservesImport(data, onlyThoseInRaid)
       end
     end
   end
---[[
+end
+
+  --[[
 function sepgp_standings:Import()
   if not IsGuildLeader() then return end
   shooty_export.action:Show()

@@ -216,6 +216,7 @@ function bepgp_plusroll_loot:GiveMasterLoot(slot, index)
   if bepgp.db.char.mode ~= "plusroll" then return end
   if LootSlotHasItem(slot) then
     local icon, itemname, quantity, currencyID, quality, locked, isQuestItem, questId, isActive = GetLootSlotInfo(slot)
+    print(quality .. ", " .. bepgp.db.profile.prompt_threshold .. ", " .. itemname)
     if quantity == 1 and quality >= bepgp.db.profile.prompt_threshold and itemname ~= "Lava Core" and itemname ~= "Fiery Core" then -- not a stack and rare or higher
       local itemLink = GetLootSlotLink(slot)
       local player = GetMasterLootCandidate(slot, index)

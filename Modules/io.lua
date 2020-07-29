@@ -3,8 +3,8 @@ local moduleName = addonName.."_io"
 local bepgp_io = bepgp:NewModule(moduleName)
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local Dump = LibStub("LibTextDump-1.0")
-local Import = LibStub("LibImport")
 local Parse = LibStub("LibParse")
+local Import = LibStub("LibImport")
 
 local temp_data = {}
 
@@ -15,6 +15,7 @@ function bepgp_io:OnEnable()
   self._iobrowser = Dump:New(L["Export Favorites"],520,290)
   self._ioreserves = Dump:New(L["Export Reserves"],450,300)
   self._ioresimport = Import:New("Import Reserves",450,400,doReservesImport)
+  self._ioroster = Dump:New(L["Export Raid Roster"],250,320)
   local bastionexport,_,_,_,reason = GetAddOnInfo("BastionEPGP_Export")
   if not (reason == "ADDON_MISSING" or reason == "ADDON_DISABLED") then
     local loaded, finished = IsAddOnLoaded("BastionEPGP_Export")
@@ -177,6 +178,25 @@ function bepgp_io:Reserves(reserves)
   end
 end
 
+local sorted_roster = {}
+function bepgp_io:Roster(roster)
+  table.wipe(sorted_roster)
+  self._ioroster:Clear()
+  for k,v in pairs(roster) do
+    table.insert(sorted_roster,{k,v.rank,v.main})
+  end
+  table.sort(sorted_roster, function(a,b)
+    return a[1] < b[1]
+  end)
+  if #(sorted_roster) > 0 then
+    self._ioroster:AddLine(string.format("**%s,%s,%s**",L["Name"],L["Rank"],L["Main"]))
+    for _,member in ipairs(sorted_roster) do
+      self._ioroster:AddLine(string.format("%s,%s,%s",member[1],member[2],member[3]))
+    end
+    self._ioroster:Display()
+  end
+end
+
 function bepgp_io:export(context,data,keys,sep)
   if not self._fileexport then return end
   if context == "Standings" then
@@ -189,39 +209,7 @@ function bepgp_io:export(context,data,keys,sep)
   self._fileexport[context].CSV = Parse:CSVEncode(keys, data, sep)
 end
 
-function bepgp_io:ImportReserves()
-  self._ioresimport:Clear()
-  self._ioresimport:Display()
-end
-
-function doReservesImport(data, onlyThoseInRaid)
-  local reserves = bepgp:GetModule(addonName.."_plusroll_reserves")
-  local keys, results = Parse:CSVDecode(data)
-  for result, entry in ipairs(results) do
-    local name = entry["name"]
-    if (name ~= nil) then
-      local include = true
-      if (onlyThoseInRaid) then
-        local rid = UnitInRaid(name)
-        if (not rid or rid < 0) then
-          include = false
-        end
-      end
-      if (include) then
-        for index, key in ipairs(keys) do
-          if (not string.match(key, "name")) then
-            local item = entry[key]
-            if (item ~= nil and type(item) == "number") then
-              reserves:AddReserve(name, string.upper(key), item, false)
-            end
-          end
-        end
-      end
-    end
-  end
-end
-
-  --[[
+--[[
 function sepgp_standings:Import()
   if not IsGuildLeader() then return end
   shooty_export.action:Show()
@@ -266,3 +254,36 @@ function sepgp_standings.import()
   end
 end
 ]]
+
+function bepgp_io:ImportReserves()
+  self._ioresimport:Clear()
+  self._ioresimport:Display()
+end
+
+function doReservesImport(data, onlyThoseInRaid)
+  local reserves = bepgp:GetModule(addonName.."_plusroll_reserves")
+  local keys, results = Parse:CSVDecode(data)
+  for result, entry in ipairs(results) do
+    local name = entry["name"]
+    if (name ~= nil) then
+      local include = true
+      if (onlyThoseInRaid) then
+        local rid = UnitInRaid(name)
+        if (not rid or rid < 0) then
+          include = false
+        end
+      end
+      if (include) then
+        for index, key in ipairs(keys) do
+          if (not string.match(key, "name")) then
+            local item = entry[key]
+            if (item ~= nil and type(item) == "number") then
+              reserves:AddReserve(name, string.upper(key), item, false)
+            end
+          end
+        end
+      end
+    end
+  end
+end
+

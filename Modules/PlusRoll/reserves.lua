@@ -261,14 +261,14 @@ function bepgp_plusroll_reserves:captureRes(event, text, sender)
   local resLine = string.find(upText, " RES ")
   local zone = ""
   if (resLine == nil) then
-    sender = Ambiguate(sender, "short")
+  sender = Ambiguate(sender,"short")
     zone = string.sub(upText, 5, string.find(text, " ", 5))
   else
     sender = Ambiguate(string.sub(text, 0, resLine-1), "short")
     zone = string.sub(upText, resLine + 5, string.find(text, " ", resLine + 6))
   end
   if not (string.find(text, "|Hitem:", 1, true)) then return end
-  local linkstriptext, count = string.gsub(text,"|c%x+|H[eimt:%d]+|h%[[%w%s',%-]+%]|h|r"," ; ")
+  local linkstriptext, count = string.gsub(text,"|c%x+|H[eimt:%d]+|h%[.-%]|h|r"," ; ")
   if count > 1 then return end
   local reskw_found
   local lowtext = string.lower(linkstriptext)
@@ -278,7 +278,7 @@ function bepgp_plusroll_reserves:captureRes(event, text, sender)
   end
   if (reskw_found) then
     local _, itemLink, itemColor, itemString, itemName, itemID
-    _,_,itemLink = string.find(text,"(|c%x+|H[eimt:%d]+|h%[[%w%s',%-]+%]|h|r)")
+    _,_,itemLink = string.find(text,"(|c%x+|H[eimt:%d]+|h%[.-%]|h|r)")
     if (itemLink) and (itemLink ~= "") then
       itemColor, itemString, itemName, itemID = bepgp:getItemData(itemLink)
     end
@@ -312,26 +312,26 @@ function bepgp_plusroll_reserves:AddReserve(player,zone,item,doWhisper)
       items[item] = items[item] or {}
       items[item][player] = true
       if (doWhisper) then
-        SendChatMessage(string.format("%s:%s",addonName,L["Reserve updated."]),"WHISPER",nil,player)
+      SendChatMessage(string.format("%s:%s",addonName,L["Reserve updated."]),"WHISPER",nil,player)
       end
     else -- item is locked
       if (doWhisper) then
-        SendChatMessage(string.format("%s:%s",addonName,L["Reserves are locked."]),"WHISPER",nil,player)
-      end
+      SendChatMessage(string.format("%s:%s",addonName,L["Reserves are locked."]),"WHISPER",nil,player)
+    end
     end
   else
     if locked then -- overall list is locked
       if (doWhisper) then
-        SendChatMessage(string.format("%s:%s",addonName,L["Reserves are locked."]),"WHISPER",nil,player)
+      SendChatMessage(string.format("%s:%s",addonName,L["Reserves are locked."]),"WHISPER",nil,player)
       end
     else
       players[playerZone] = {item, false}
       items[item] = items[item] or {}
       items[item][player] = true
       if (doWhisper) then
-        SendChatMessage(string.format("%s:%s",addonName,L["Reserve added."]),"WHISPER",nil,player)
-      end
+      SendChatMessage(string.format("%s:%s",addonName,L["Reserve added."]),"WHISPER",nil,player)
     end
+  end
   end
   self:Toggle(true)
 end

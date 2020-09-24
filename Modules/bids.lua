@@ -38,7 +38,7 @@ local slotMap = {
 local itemID = GetInventoryItemID("player",slotID)
 ]]
 
-bepgp_bids.bids_main,bepgp_bids.bids_off,bepgp_bids.bid_item = {},{},{}
+bepgp_bids.need_bids_main,bepgp_bids.need_bids_off,bepgp_bids.greed_bids_main,bepgp_bids.greed_bids_off,bepgp_bids.bid_item = {},{},{},{},{}
 local bids_blacklist = {}
 local bidlink = {
   ["ms"]=L["|cffFF3333|Hbepgpbid:1:$ML|h[Mainspec/NEED]|h|r"],
@@ -110,8 +110,10 @@ end
 
 function bepgp_bids:updateBids()
   -- {name,class,ep,gp,ep/gp,rank[,main]}
-  table.sort(self.bids_main, pr_sorter_bids)
-  table.sort(self.bids_off, pr_sorter_bids)
+  table.sort(self.need_bids_main, pr_sorter_bids)
+  table.sort(self.need_bids_off, pr_sorter_bids)
+  table.sort(self.greed_bids_main, pr_sorter_bids)
+  table.sort(self.greed_bids_off, pr_sorter_bids)
 end
 
 function bepgp_bids:Refresh()
@@ -147,10 +149,10 @@ function bepgp_bids:Refresh()
     frame:SetCellScript(line,5,"OnMouseUp", bepgp_bids.announcedisench, bepgp_bids.bid_item.itemlink)
     frame:SetCell(line,6,"",nil,"RIGHT")
 
-    if #(self.bids_main) > 0 then
+    if #(self.need_bids_main) > 0 then
       line = frame:AddLine(" ")
       line = frame:AddHeader()
-      frame:SetCell(line,1,C:Gold(L["Mainspec Bids"]),nil,"LEFT",6)
+      frame:SetCell(line,1,C:Gold("Mainspec Needs"),nil,"LEFT",6)
       line = frame:AddHeader()
       frame:SetCell(line,1,C:Orange(L["Name"]),nil,"LEFT")
       frame:SetCell(line,2,C:Orange(L["ep"]),nil,"CENTER")
@@ -159,7 +161,7 @@ function bepgp_bids:Refresh()
       frame:SetCell(line,5,C:Orange(_G.RANK),nil,"RIGHT")
       frame:SetCell(line,6,C:Orange(L["Main"]),nil,"RIGHT")
       line = frame:AddSeparator(1)
-      for i,data in ipairs(self.bids_main) do
+      for i,data in ipairs(self.need_bids_main) do
         local name, class, ep, gp, pr, rank, main = unpack(data)
         local eclass,_,hexclass = bepgp:getClassData(class)
         local r,g,b = RAID_CLASS_COLORS[eclass].r, RAID_CLASS_COLORS[eclass].g, RAID_CLASS_COLORS[eclass].b
@@ -184,10 +186,10 @@ function bepgp_bids:Refresh()
         frame:SetLineScript(line, "OnMouseUp", bepgp_bids.announceWinner, {name, pr, "ms"})
       end
     end
-    if #(self.bids_off) > 0 then
+    if #(self.greed_bids_main) > 0 then
       line = frame:AddLine(" ")
       line = frame:AddHeader()
-      frame:SetCell(line,1,C:Silver(L["Offspec Bids"]),nil,"LEFT",5)
+      frame:SetCell(line,1,C:Silver("Mainspec Greeds"),nil,"LEFT",5)
       line = frame:AddHeader()
       frame:SetCell(line,1,C:Orange(L["Name"]),nil,"LEFT")
       frame:SetCell(line,2,C:Orange(L["ep"]),nil,"CENTER")
@@ -196,7 +198,81 @@ function bepgp_bids:Refresh()
       frame:SetCell(line,5,C:Orange(_G.RANK),nil,"RIGHT")
       frame:SetCell(line,6,C:Orange(L["Main"]),nil,"RIGHT")
       line = frame:AddSeparator(1)
-      for i,data in ipairs(self.bids_off) do
+      for i,data in ipairs(self.greed_bids_main) do
+        local name, class, ep, gp, pr, rank, main = unpack(data)
+        local eclass,_,hexclass = bepgp:getClassData(class)
+        local r,g,b = RAID_CLASS_COLORS[eclass].r, RAID_CLASS_COLORS[eclass].g, RAID_CLASS_COLORS[eclass].b
+        --local name_c = C:Colorize(hexclass,name)
+        local text2, text4
+        if minep > 0 and ep < minep then
+          text2 = C:Red(string.format("%.4g", ep))
+          text4 = C:Red(string.format("%.4g", pr))
+        else
+          text2 = string.format("%.4g", ep)
+          text4 = string.format("%.4g", pr)
+        end
+        local text3, text6 = string.format("%.4g", gp), (main or "")
+        line = frame:AddLine()
+        frame:SetCell(line,1,name,nil,"LEFT")
+        frame:SetCellTextColor(line,1,r,g,b)
+        frame:SetCell(line,2,text2,nil,"CENTER")
+        frame:SetCell(line,3,text3,nil,"CENTER")
+        frame:SetCell(line,4,text4,nil,"CENTER")
+        frame:SetCell(line,5,rank,nil,"RIGHT")
+        frame:SetCell(line,6,text6,nil,"RIGHT")
+        frame:SetLineScript(line,"OnMouseUp", bepgp_bids.announceWinner, {name, pr, "os"})
+      end
+    end
+    if #(self.need_bids_off) > 0 then
+      line = frame:AddLine(" ")
+      line = frame:AddHeader()
+      frame:SetCell(line,1,C:Gold("Offspec Needs"),nil,"LEFT",6)
+      line = frame:AddHeader()
+      frame:SetCell(line,1,C:Orange(L["Name"]),nil,"LEFT")
+      frame:SetCell(line,2,C:Orange(L["ep"]),nil,"CENTER")
+      frame:SetCell(line,3,C:Orange(L["gp"]),nil,"CENTER")
+      frame:SetCell(line,4,C:Orange(L["pr"]),nil,"CENTER")
+      frame:SetCell(line,5,C:Orange(_G.RANK),nil,"RIGHT")
+      frame:SetCell(line,6,C:Orange(L["Main"]),nil,"RIGHT")
+      line = frame:AddSeparator(1)
+      for i,data in ipairs(self.need_bids_off) do
+        local name, class, ep, gp, pr, rank, main = unpack(data)
+        local eclass,_,hexclass = bepgp:getClassData(class)
+        local r,g,b = RAID_CLASS_COLORS[eclass].r, RAID_CLASS_COLORS[eclass].g, RAID_CLASS_COLORS[eclass].b
+        --local name_c = C:Colorize(hexclass,name)
+        local text2, text4
+        if minep > 0 and ep < minep then
+          text2 = C:Red(string.format("%.4g", ep))
+          text4 = C:Red(string.format("%.4g", pr))
+        else
+          text2 = string.format("%.4g", ep)
+          text4 = string.format("%.4g", pr)
+        end
+        local text3, text6 = string.format("%.4g", gp), (main or "")
+        line = frame:AddLine()
+        frame:SetCell(line,1,name,nil,"LEFT")
+        frame:SetCellTextColor(line,1,r,g,b)
+        frame:SetCell(line,2,text2,nil,"CENTER")
+        frame:SetCell(line,3,text3,nil,"CENTER")
+        frame:SetCell(line,4,text4,nil,"CENTER")
+        frame:SetCell(line,5,rank,nil,"RIGHT")
+        frame:SetCell(line,6,text6,nil,"RIGHT")
+        frame:SetLineScript(line, "OnMouseUp", bepgp_bids.announceWinner, {name, pr, "ms"})
+      end
+    end
+    if #(self.greed_bids_off) > 0 then
+      line = frame:AddLine(" ")
+      line = frame:AddHeader()
+      frame:SetCell(line,1,C:Silver("Offspec Greeds"),nil,"LEFT",5)
+      line = frame:AddHeader()
+      frame:SetCell(line,1,C:Orange(L["Name"]),nil,"LEFT")
+      frame:SetCell(line,2,C:Orange(L["ep"]),nil,"CENTER")
+      frame:SetCell(line,3,C:Orange(L["gp"]),nil,"CENTER")
+      frame:SetCell(line,4,C:Orange(L["pr"]),nil,"CENTER")
+      frame:SetCell(line,5,C:Orange(_G.RANK),nil,"RIGHT")
+      frame:SetCell(line,6,C:Orange(L["Main"]),nil,"RIGHT")
+      line = frame:AddSeparator(1)
+      for i,data in ipairs(self.greed_bids_off) do
         local name, class, ep, gp, pr, rank, main = unpack(data)
         local eclass,_,hexclass = bepgp:getClassData(class)
         local r,g,b = RAID_CLASS_COLORS[eclass].r, RAID_CLASS_COLORS[eclass].g, RAID_CLASS_COLORS[eclass].b
@@ -331,6 +407,7 @@ function bepgp_bids:captureLootCall(event, text, sender)
           bepgp_bids.bid_item.itemstring = itemString
           bepgp_bids.bid_item.itemlink = itemLink
           bepgp_bids.bid_item.name = string.format("%s%s|r",itemColor,itemName)
+          bepgp_bids.bid_item.item = itemName
           bepgp_bids.bid_item.price = price
           bepgp_bids.bid_item.off_price = math.floor(price*bepgp.db.profile.discount)
           self._bidTimer = self:ScheduleTimer("clearBids",300)
@@ -345,8 +422,10 @@ function bepgp_bids:captureLootCall(event, text, sender)
 end
 
 local lootBid = {
-  ["ms"] = {"(%+)",".+(%+).*",".*(%+).+",".*(%+).*",L["(ms)"],L["(need)"]},
-  ["os"] = {"(%-)",".+(%-).*",".*(%-).+",".*(%-).*",L["(os)"],L["(greed)"]}
+  ["ms_need"] = {"+","+m","+M","+ms","+MS","need m","need M"},
+  ["os_need"] = {"+o","+O","+os","+OS","need o","need O"},
+  ["ms_greed"] = {"-","-m","-M","-ms","-MS","greed m","greed M"},
+  ["os_greed"] = {"-o","-O","-os","-OS","greed o","greed O"}
 }
 function bepgp_bids:captureBid(event, text, sender)
   if bepgp.db.char.mode ~= "epgp" then return end
@@ -354,17 +433,25 @@ function bepgp_bids:captureBid(event, text, sender)
   if not (bepgp:raidLeader() or bepgp:lootMaster()) then return end
   if not bepgp_bids.bid_item.itemstring then return end
   sender = Ambiguate(sender,"short") --:gsub("(\-.+)","")
-  local mskw_found,oskw_found
+  local mskw_need_found,oskw_need_found,mskw_greed_found,oskw_greed_found
   local lowtext = string.lower(text)
-  for _,f in ipairs(lootBid.ms) do
-    mskw_found = string.find(lowtext,f)
-    if (mskw_found) then break end
+  for _,f in ipairs(lootBid.ms_need) do
+    mskw_need_found = string.find(lowtext,f)
+    if (mskw_need_found) then break end
   end
-  for _,f in ipairs(lootBid.os) do
-    oskw_found = string.find(lowtext,f)
-    if (oskw_found) then break end
+  for _,f in ipairs(lootBid.ms_greed) do
+    mskw_greed_found = string.find(lowtext,f)
+    if (mskw_greed_found) then break end
   end
-  if (mskw_found) or (oskw_found) then
+  for _,f in ipairs(lootBid.os_need) do
+    oskw_need_found = string.find(lowtext,f)
+    if (oskw_need_found) then break end
+  end
+  for _,f in ipairs(lootBid.os_greed) do
+    oskw_greed_found = string.find(lowtext,f)
+    if (oskw_greed_found) then break end
+  end
+  if (mskw_need_found) or (mskw_greed_found) or (oskw_need_found) or (oskw_greed_found) then
     if bepgp:inRaid(sender) then
       if bids_blacklist[sender] == nil then
         for i = 1, GetNumGuildMembers(true) do
@@ -382,26 +469,77 @@ function bepgp_bids:captureBid(event, text, sender)
                 main_name = main
               end
             end
-            if (mskw_found) then
+            if (mskw_need_found) then
               bids_blacklist[sender] = true
               if (bepgp.db.profile.altspool) and (main_name) then
-                table.insert(bepgp_bids.bids_main,{name,class,ep,gp,ep/gp,rank,main_name})
+                table.insert(bepgp_bids.need_bids_main,{name,class,ep,gp,ep/gp,rank,main_name})
+                name = name .. "(Alt)"
               else
-                table.insert(bepgp_bids.bids_main,{name,class,ep,gp,ep/gp,rank})
+                table.insert(bepgp_bids.need_bids_main,{name,class,ep,gp,ep/gp,rank})
               end
-            elseif (oskw_found) then
+              bepgp:adminSay("MS Need bid received from " .. name .. " for " .. bepgp_bids.bid_item.item .. ".  Prio: " .. ep/gp)
+            elseif (mskw_greed_found) then
+              bids_blacklist[sender] = true
+              ep = random(1,100)
+              gp = 1
+              if (bepgp.db.profile.altspool) and (main_name) then
+                table.insert(bepgp_bids.greed_bids_main,{name,class,ep,gp,ep/gp,rank,main_name})
+                name = name .. "(Alt)"
+              else
+                table.insert(bepgp_bids.greed_bids_main,{name,class,ep,gp,ep/gp,rank})
+              end
+              bepgp:adminSay("MS Greed bid received from " .. name .. " for " .. bepgp_bids.bid_item.item .. ". Rolled " .. ep)
+            elseif (oskw_need_found) then
               bids_blacklist[sender] = true
               if (bepgp.db.profile.altspool) and (main_name) then
-                table.insert(bepgp_bids.bids_off,{name,class,ep,gp,ep/gp,rank,main_name})
+                table.insert(bepgp_bids.need_bids_off,{name,class,ep,gp,ep/gp,rank,main_name})
+                name = name .. "(Alt)"
               else
-                table.insert(bepgp_bids.bids_off,{name,class,ep,gp,ep/gp,rank})
+                table.insert(bepgp_bids.need_bids_off,{name,class,ep,gp,ep/gp,rank})
               end
+              bepgp:adminSay("OS Need bid received from " .. name .. " for " .. bepgp_bids.bid_item.item .. ".  Prio: " .. ep/gp)
+            elseif (oskw_greed_found) then
+              bids_blacklist[sender] = true
+              ep = random(1,100)
+              gp = 1
+              if (bepgp.db.profile.altspool) and (main_name) then
+                table.insert(bepgp_bids.greed_bids_off,{name,class,ep,gp,ep/gp,rank,main_name})
+                name = name .. "(Alt)"
+              else
+                table.insert(bepgp_bids.greed_bids_off,{name,class,ep,gp,ep/gp,rank})
+              end
+              bepgp:adminSay("OS Greed bid received from " .. name .. " for " .. bepgp_bids.bid_item.item .. ". Rolled " .. ep)
             end
             self:updateBids()
             self:Refresh()
             return
           end
         end
+        -- if we didn't return out of the logic above, it means we didn't find them in guild (PUG!)
+        local name = Ambiguate(sender,"short") --:gsub("(\-.+)","")
+        local ep = random(1,100)
+        local gp = 1
+        if (mskw_need_found) then
+          bids_blacklist[sender] = true
+          table.insert(bepgp_bids.need_bids_main,{name,"Priest",ep,gp,ep/gp,"PUG"})
+          bepgp:adminSay("MS Need bid received from " .. name .. " (PUG) for " .. bepgp_bids.bid_item.item .. ".  Rolled: " .. ep)
+        elseif (mskw_greed_found) then
+          bids_blacklist[sender] = true
+          table.insert(bepgp_bids.greed_bids_main,{name,"Priest",ep,gp,ep/gp,"PUG"})
+          bepgp:adminSay("MS Greed bid received from " .. name .. " (PUG) for " .. bepgp_bids.bid_item.item .. ". Rolled " .. ep)
+        elseif (oskw_need_found) then
+          bids_blacklist[sender] = true
+          table.insert(bepgp_bids.need_bids_off,{name,"Priest",ep,gp,ep/gp,"PUG"})
+          bepgp:adminSay("OS Need bid received from " .. name .. " (PUG) for " .. bepgp_bids.bid_item.item .. ".  Rolled: " .. ep)
+        elseif (oskw_greed_found) then
+          bids_blacklist[sender] = true
+          table.insert(bepgp_bids.greed_bids_off,{name,"Priest",ep,gp,ep/gp,"PUG"})
+          bepgp:adminSay("OS Greed bid received from " .. name .. " (PUG) for " .. bepgp_bids.bid_item.item .. ". Rolled " .. ep)
+        end
+        self:updateBids()
+        self:Refresh()
+        return
+
       end
     end
   end
@@ -414,8 +552,10 @@ function bepgp_bids:clearBids(reset)
     self.qtip:Hide()
   end
   table.wipe(bepgp_bids.bid_item) -- = {}
-  table.wipe(bepgp_bids.bids_main) -- = {}
-  table.wipe(bepgp_bids.bids_off) -- = {}
+  table.wipe(bepgp_bids.need_bids_main) -- = {}
+  table.wipe(bepgp_bids.need_bids_off) -- = {}
+  table.wipe(bepgp_bids.greed_bids_main) -- = {}
+  table.wipe(bepgp_bids.greed_bids_off) -- = {}
   table.wipe(bids_blacklist) -- = {}
   if self._bidTimer then
     self:CancelTimer(self._bidTimer)

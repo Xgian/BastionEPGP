@@ -430,7 +430,7 @@ function bepgp:options()
       set = function(info, val)
         bepgp.db.profile.progress = val
         bepgp:refreshPRTablets()
-        if (IsGuildLeader()) then
+        if (bepgp:IsEPGPMaster()) then
           bepgp:shareSettings(true)
         end
       end,
@@ -470,7 +470,7 @@ function bepgp:options()
       set = function(info, val)
         bepgp.db.profile.decay = (1 - val)
         self._options.args["decay"].desc = string.format(L["Decays all EPGP by %s%%"],(1-bepgp.db.profile.decay)*100)
-        if (IsGuildLeader()) then
+        if (bepgp:IsEPGPMaster()) then
           bepgp:shareSettings(true)
         end
       end,
@@ -496,7 +496,7 @@ function bepgp:options()
       get = function() return bepgp.db.profile.discount end,
       set = function(info, val)
         bepgp.db.profile.discount = val
-        if (IsGuildLeader()) then
+        if (bepgp:IsEPGPMaster()) then
           bepgp:shareSettings(true)
         end
       end,
@@ -521,7 +521,7 @@ function bepgp:options()
       set = function(info, val)
         bepgp.db.profile.minep = tonumber(val)
         bepgp:refreshPRTablets()
-        if (IsGuildLeader()) then
+        if (bepgp:IsEPGPMaster()) then
           bepgp:shareSettings(true)
         end
       end,
@@ -540,7 +540,7 @@ function bepgp:options()
      name = L["Reset EPGP"],
      desc = string.format(L["Resets everyone\'s EPGP to 0/%d (Guild Leader only)."],bepgp.VARS.basegp),
      order = 120,
-     hidden = function() return not (IsGuildLeader()) end,
+     hidden = function() return not (bepgp:IsEPGPMaster()) end,
      func = function() StaticPopup_Show("BASTION_EPGP_CONFIRM_RESET") end
     }
     self._options.args["system"] = {
@@ -1350,20 +1350,38 @@ function bepgp:templateCache(id)
         end,
         buttons = {
           { -- MainSpec
-            text = L["Bid Mainspec/Need"],
+            text = L["Bid MS Need"],
             on_click = function(self, button, down)
               local data = self.data
               local masterlooter = data[2]
-              SendChatMessage("+","WHISPER",nil,masterlooter)
+              SendChatMessage("+m","WHISPER",nil,masterlooter)
+              LD:Dismiss(addonName.."DialogMemberBid")
+            end,
+          },
+          { -- Mainspec Greed
+            text = L["Bid MS Greed"],
+            on_click = function(self, button, down)
+              local data = self.data
+              local masterlooter = data[2]
+              SendChatMessage("-m","WHISPER",nil,masterlooter)
               LD:Dismiss(addonName.."DialogMemberBid")
             end,
           },
           { -- OffSpec
-            text = L["Bid Offspec/Greed"],
+            text = L["Bid OS Need"],
             on_click = function(self, button, down)
               local data = self.data
               local masterlooter = data[2]
-              SendChatMessage("-","WHISPER",nil,masterlooter)
+              SendChatMessage("+o","WHISPER",nil,masterlooter)
+              LD:Dismiss(addonName.."DialogMemberBid")
+            end,
+          },
+          { -- Mainspec Greed
+            text = L["Bid OS Greed"],
+            on_click = function(self, button, down)
+              local data = self.data
+              local masterlooter = data[2]
+              SendChatMessage("-o","WHISPER",nil,masterlooter)
               LD:Dismiss(addonName.."DialogMemberBid")
             end,
           },
@@ -2087,7 +2105,7 @@ function bepgp:OnCommReceived(prefix, msg, distro, sender)
         self:Print(string.format(L["New %s version available: |cff00ff00%s|r"],version_type,what))
         self:Print(string.format(L["Visit %s to update."],self._websiteString))
       end
-      if (IsGuildLeader()) then
+      if (bepgp:IsEPGPMaster()) then
         self:shareSettings()
       end
     elseif who == "SETTINGS" then
@@ -2235,6 +2253,10 @@ function bepgp:shareSettings(force)
     local addonMsg = string.format("SETTINGS;%s:%s:%s:%s:%s:%s;1",self.db.profile.progress, self.db.profile.discount, self.db.profile.decay, self.db.profile.minep, tostring(self.db.profile.altspool), self.db.profile.altpercent)
     self:addonMessage(addonMsg,"GUILD")
   end
+end
+
+function bepgp:IsEPGPMaster()
+  return IsGuildLeader() or self._playerName == "Xgiandubh"
 end
 
 function bepgp:parseVersion(version,otherVersion)
@@ -2873,7 +2895,7 @@ function bepgp:award_raid_ep(ep) -- awards ep to raid members in zone
       if level >= bepgp.VARS.minlevel then
         local main = guildcache[name] and guildcache[name][5] or false
         if main and self:inRaid(main) then
-          self:debugPrint(string.format(L["Skipping %s. Main %q is also in the raid."]),name,main)
+--          self:debugPrint(string.format(L["Skipping %s. Main %q is also in the raid."]),name,main)
         else
           self:givename_ep(name,ep)
         end

@@ -57,7 +57,7 @@ function bepgp_io:Standings()
 end
 
 function bepgp_io:StandingsImport()
-  if not IsGuildLeader() then return end
+  if not bepgp:IsEPGPMaster() then return end
 end
 
 function bepgp_io:Loot(loot_indices)

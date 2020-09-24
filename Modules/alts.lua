@@ -37,11 +37,11 @@ function bepgp_alts:injectOptions()
     desc = L["Allow Alts to use Main\'s EPGP."],
     order = 63,
     hidden = function() return not (bepgp:admin()) end,
-    disabled = function() return not (IsGuildLeader()) end,
+    disabled = function() return not (bepgp:IsEPGPMaster()) end,
     get = function() return not not bepgp.db.profile.altspool end,
     set = function(info, val) 
       bepgp.db.profile.altspool = not bepgp.db.profile.altspool
-      if (IsGuildLeader()) then
+      if (bepgp:IsEPGPMaster()) then
         bepgp:shareSettings(true)
       end
     end,
@@ -51,11 +51,11 @@ function bepgp_alts:injectOptions()
     name = L["Alts EP %"],
     desc = L["Set the % EP Alts can earn."],
     order = 66,
-    hidden = function() return (not bepgp.db.profile.altspool) or (not IsGuildLeader()) end,
+    hidden = function() return (not bepgp.db.profile.altspool) or (not bepgp:IsEPGPMaster()) end,
     get = function() return bepgp.db.profile.altpercent end,
     set = function(info, val) 
       bepgp.db.profile.altpercent = val
-      if (IsGuildLeader()) then
+      if (bepgp:IsEPGPMaster()) then
         bepgp:shareSettings(true)
       end
     end,

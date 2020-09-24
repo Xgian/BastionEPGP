@@ -104,7 +104,7 @@ Results will print here when done.]]
   L["|cffff0000Manually modified %s\'s note. EPGP was %s|r"] = true
   L["Whisper %s a + for %s (mainspec)"] = true
   L["Whisper %s a - for %s (offspec)"] = true
-  L["Whisper %s a + or - for %s (mainspec or offspec)"] = true
+  L["Whisper %s a +m / -m (need/greed mainspec) or +o / -o (need/greed offspec) for %s"] = true
   L["Click $MS or $OS for %s"] = true
   L["or $OS "] = true
   L["$MS or "] = true

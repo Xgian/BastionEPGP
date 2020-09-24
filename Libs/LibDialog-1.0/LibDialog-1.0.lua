@@ -76,7 +76,7 @@ local DEFAULT_ICON_SIZE = 36
 local DEFAULT_DIALOG_TEXT_WIDTH = 290
 
 local MAX_DIALOGS = 4
-local MAX_BUTTONS = 3
+local MAX_BUTTONS = 4
 
 local DEFAULT_DIALOG_BACKDROP = {
     bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]],
@@ -625,7 +625,9 @@ local function _BuildDialog(delegate, data)
             local button = dialog.buttons[index]
 
             if index == 1 then
-                if NUM_BUTTONS == 3 then
+                if NUM_BUTTONS == 4 then
+                    button:SetPoint("BOTTOMRIGHT", dialog, "BOTTOM", -130, 16)
+                elseif NUM_BUTTONS == 3 then
                     button:SetPoint("BOTTOMRIGHT", dialog, "BOTTOM", -72, 16)
                 elseif NUM_BUTTONS == 2 then
                     button:SetPoint("BOTTOMRIGHT", dialog, "BOTTOM", -6, 16)
@@ -931,9 +933,7 @@ function dialog_prototype:Resize()
     if self.buttons and #self.buttons > 0 then
         height = height + 8 + DEFAULT_BUTTON_HEIGHT
 
-        if #self.buttons == MAX_BUTTONS then
-            width = 440
-        end
+        width = max(#self.buttons * 140 + 20, DEFAULT_DIALOG_WIDTH)
     end
 
     if self.editboxes and #self.editboxes > 0 then

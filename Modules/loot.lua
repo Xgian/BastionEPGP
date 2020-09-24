@@ -435,12 +435,12 @@ function bepgp_loot:bidCall(frame, button, context) -- context is one of "master
   if (not (price)) or (price == 0) then
     return
   end
-  if button == "LeftButton" then
+  if button == "MiddleButton" then
     bepgp:widestAudience(string.format(L["Whisper %s a + for %s (mainspec)"],bepgp._playerName,itemLink))
   elseif button == "RightButton" then
     bepgp:widestAudience(string.format(L["Whisper %s a - for %s (offspec)"],bepgp._playerName,itemLink))
-  elseif button == "MiddleButton" then
-    bepgp:widestAudience(string.format(L["Whisper %s a + or - for %s (mainspec or offspec)"],bepgp._playerName,itemLink))
+  elseif button == "LeftButton" then
+    bepgp:widestAudience(string.format(L["Whisper %s a +m / -m (need/greed mainspec) or +o / -o (need/greed offspec) for %s"],bepgp._playerName,itemLink))
   end
 end
 

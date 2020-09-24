@@ -93,7 +93,7 @@ if not L then return end
   L["|cffff0000Manually modified %s\'s note. EPGP was %s|r"] = "|cffff0000手动修改 %s\'s 记录. EPGP 是 %s|r"
   L["Whisper %s a + for %s (mainspec)"] = "私聊 %s + 为 %s (主天赋)"
   L["Whisper %s a - for %s (offspec)"] = "私聊 %s - 为 %s (副天赋)"
-  L["Whisper %s a + or - for %s (mainspec or offspec)"] = "私聊 %s + 或 - 为 %s (主天赋或副天赋)"
+  L["Whisper %s a +m / -m (need/greed mainspec) or +o / -o (need/greed offspec) for %s"] = "私聊 %s + 或 - 为 %s (主天赋或副天赋)"
   L["Click $MS or $OS for %s"] = "点击 $MS 或 $OS 为: %s"
   L["or $OS "] = "或 $OS "
   L["$MS or "] = "$MS 或 "

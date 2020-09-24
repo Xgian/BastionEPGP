@@ -1350,7 +1350,7 @@ function bepgp:templateCache(id)
         end,
         buttons = {
           { -- MainSpec
-            text = L["Bid MS Need"],
+            text = "Bid MS Need",
             on_click = function(self, button, down)
               local data = self.data
               local masterlooter = data[2]
@@ -1359,7 +1359,7 @@ function bepgp:templateCache(id)
             end,
           },
           { -- Mainspec Greed
-            text = L["Bid MS Greed"],
+            text = "Bid MS Greed",
             on_click = function(self, button, down)
               local data = self.data
               local masterlooter = data[2]
@@ -1368,7 +1368,7 @@ function bepgp:templateCache(id)
             end,
           },
           { -- OffSpec
-            text = L["Bid OS Need"],
+            text = "Bid OS Need",
             on_click = function(self, button, down)
               local data = self.data
               local masterlooter = data[2]
@@ -1377,7 +1377,7 @@ function bepgp:templateCache(id)
             end,
           },
           { -- Mainspec Greed
-            text = L["Bid OS Greed"],
+            text = "Bid OS Greed",
             on_click = function(self, button, down)
               local data = self.data
               local masterlooter = data[2]
